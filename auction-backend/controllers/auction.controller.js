@@ -5,8 +5,13 @@ const getAuctions = async (req, res) => {
   try {
     const { status, category, search, sort, page = 1, limit = 12 } = req.query;
     const query = {};
-    if (status) query.status = status;
-    else query.status = "active";
+    if (status) {
+      query.status = status;
+    }
+    else {
+      query.status = "active";
+      query.endTime = { $gt: new Date() }; // ← only truly live ones
+    }
     if (category && category !== "All") query.category = category;
     if (search) query.title = { $regex: search, $options: "i" };
 

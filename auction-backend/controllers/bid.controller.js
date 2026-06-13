@@ -21,6 +21,14 @@ const getMyBids = async (req, res) => {
     const bids = await Bid.find({ bidder: req.user._id })
       .populate("auction", "title currentPrice status endTime images")
       .sort({ createdAt: -1 });
+
+    const fixedBids = bids.map((bid) => {
+      const b = bid.toObject();
+      if (b.auction && b.auction.status === "active" && new Date(b.auction.endTime) < new Date()) {
+        b.auction.status = "ended";
+      }
+      return b;
+    });
     return res.status(200).json({ success: true, bids });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
