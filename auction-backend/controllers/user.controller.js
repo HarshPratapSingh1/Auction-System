@@ -73,5 +73,3 @@ const updateProfile = async (req, res) => {
 };
 
 module.exports = { getMyStats, updateProfile };
-
-// still to edit
