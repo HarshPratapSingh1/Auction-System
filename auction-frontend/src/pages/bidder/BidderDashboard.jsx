@@ -11,18 +11,23 @@ export default function BidderDashboard() {
   const [tab, setTab] = useState("active");
 
   useEffect(() => {
-    api.get("/bids/my-bids")
-      .then((res) => setBids(res.data.bids))
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+  api.get("/bids/my-bids")
+    .then((res) => setBids(res.data.bids))
+    .catch(() => {})
+    .finally(() => setLoading(false));
+}, []);
 
-  const activeBids = bids.filter((b) => b.auction?.status === "active");
-  const wonBids = bids.filter((b) => b.auction?.status === "ended" && b.isWinning);
-  const lostBids = bids.filter((b) => b.auction?.status === "ended" && !b.isWinning);
+  const now = new Date();
+  const isEnded = (b) => b.auction && (b.auction.status === "ended" || new Date(b.auction.endTime) < now);
+  const isLive = (b) => b.auction && b.auction.status === "active" && new Date(b.auction.endTime) > now;
+
+  const activeBids = bids.filter((b) => isLive(b));
+  const wonBids = bids.filter((b) => isEnded(b) && b.isWinning);
+  const lostBids = bids.filter((b) => isEnded(b) && !b.isWinning);
+  const endedBids = bids.filter((b) => isEnded(b));
   const allBids = bids;
 
-  const tabMap = { active: activeBids, won: wonBids, lost: lostBids, all: allBids };
+  const tabMap = { active: activeBids, won: wonBids, lost: lostBids, ended: endedBids, all: allBids };
   const displayBids = tabMap[tab];
 
   const totalSpent = wonBids.reduce((s, b) => s + b.amount, 0);
@@ -69,6 +74,7 @@ export default function BidderDashboard() {
             ["active", `Active (${activeBids.length})`],
             ["won", `Won (${wonBids.length})`],
             ["lost", `Lost (${lostBids.length})`],
+            ["ended", `Ended (${bids.filter(b => b.auction?.status === "ended").length})`],
             ["all", `All (${allBids.length})`],
           ].map(([val, label]) => (
             <button key={val} onClick={() => setTab(val)} style={{ padding: "0.65rem 1.25rem", background: "transparent", border: "none", borderBottom: tab === val ? "2px solid #e8c547" : "2px solid transparent", color: tab === val ? "#e8c547" : "#555", cursor: "pointer", fontSize: "0.85rem", fontWeight: tab === val ? 600 : 400, fontFamily: "'DM Sans', sans-serif", marginBottom: "-1px", transition: "color 0.15s" }}>
