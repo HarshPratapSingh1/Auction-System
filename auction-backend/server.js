@@ -29,17 +29,21 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-// ── Routes ─────────────────────────────────────────────────────────────────
+// ── Routes ──────────────────────────────────────────────────────────────────
 app.use("/api/auth", require("./routes/auth.routes"));
 app.use("/api/auctions", require("./routes/auction.routes"));
 app.use("/api/bids", require("./routes/bid.routes"));
-app.use("/api/users", require("./routes/user.routes"));   // ← Week 4 addition
+app.use("/api/users", require("./routes/user.routes"));
+app.use("/api/admin", require("./routes/admin.routes"));  // ← Week 5
 
 app.get("/", (req, res) => res.json({ message: "Auction System API is running 🚀" }));
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(err.status || 500).json({ success: false, message: err.message || "Internal Server Error" });
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+  });
 });
 
 const PORT = process.env.PORT || 5000;
