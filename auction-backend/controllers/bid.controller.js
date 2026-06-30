@@ -1,7 +1,6 @@
 const Bid = require("../models/Bid.model");
 const Auction = require("../models/Auction.model");
 
-// Get all bids for an auction (public)
 const getAuctionBids = async (req, res) => {
   try {
     const bids = await Bid.find({ auction: req.params.id })
@@ -14,7 +13,6 @@ const getAuctionBids = async (req, res) => {
   }
 };
 
-// Get bids placed by the logged-in bidder
 const getMyBids = async (req, res) => {
   try {
     const bids = await Bid.find({ bidder: req.user._id })
@@ -34,11 +32,10 @@ const getMyBids = async (req, res) => {
       return b;
     });
 
-    return res.status(200).json({ success: true, bids: fixedBids }); // ✅ was returning wrong variable
+    return res.status(200).json({ success: true, bids: fixedBids });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
 
 module.exports = { getAuctionBids, getMyBids };
-// still to edit

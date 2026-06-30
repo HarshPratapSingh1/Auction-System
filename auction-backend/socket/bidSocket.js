@@ -3,6 +3,7 @@ const User = require("../models/User.model");
 const Auction = require("../models/Auction.model");
 const Bid = require("../models/Bid.model");
 const cookie = require("cookie");
+const { sendOutbidEmail } = require("../utils/emailService");
 
 module.exports = (io) => {
   // ── Auth middleware for socket connections ──────────────────────────────
@@ -121,7 +122,27 @@ module.exports = (io) => {
 
         io.to(auctionId).emit("new_bid", bidData);
         console.log(`💰 Bid: $${amount} on ${auctionId} by ${socket.user.name}`);
-      } catch (err) {
+        const previousWinningBid = await Bid.findOne({
+          auction: auctionId,
+          isWinning: false,
+          bidder: { $ne: socket.user._id },
+        }).populate("bidder", "name email").sort({ createdAt: -1 });
+
+        if (previousWinningBid) {
+          try {
+            await sendOutbidEmail({
+              to: previousWinningBid.bidder.email,
+              name: previousWinningBid.bidder.name,
+              auctionTitle: auction.title,
+              auctionId: auction._id,
+              newBidAmount: amount,
+              yourBidAmount: previousWinningBid.amount,
+            });
+          } catch (e) {
+              console.error("Outbid email failed:", e.message);
+          }
+        }
+        } catch (err) {
         console.error("place_bid error:", err.message);
         socket.emit("bid_error", { message: "Failed to place bid. Try again." });
       }

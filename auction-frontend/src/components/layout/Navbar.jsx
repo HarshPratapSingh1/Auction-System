@@ -1,6 +1,7 @@
 import { useContext, useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
+import NotificationBell from "../common/NotificationBell";
 
 export default function Navbar() {
   const { user, logout } = useContext(AuthContext);
@@ -83,8 +84,10 @@ export default function Navbar() {
 
         {/* Right: Avatar dropdown */}
         {user && (
-          <div style={{ position: "relative" }} ref={dropdownRef}>
-            <button className="avatar-btn" onClick={() => setOpen((o) => !o)} style={{ borderColor: open ? "#e8c547" : "#2a2a2a" }}>
+          <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+            <NotificationBell notifications={[]} />
+            <div style={{ position: "relative" }} ref={dropdownRef}>
+              <button className="avatar-btn" onClick={() => setOpen((o) => !o)} style={{ borderColor: open ? "#e8c547" : "#2a2a2a" }}>
               {initials}
             </button>
 
@@ -131,8 +134,9 @@ export default function Navbar() {
               </div>
             )}
           </div>
-        )}
-      </nav>
+        </div>
+      )}
+    </nav>
     </>
   );
 }

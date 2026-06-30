@@ -77,6 +77,7 @@ const auctionSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    endingSoonNotified: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
